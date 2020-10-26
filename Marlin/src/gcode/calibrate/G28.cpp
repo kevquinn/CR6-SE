@@ -619,7 +619,9 @@ void GcodeSuite::G28(const bool always_home_all) {
       if(StartPrint_flag) 
       {
         StartPrint_flag = 0;
+        #if ENABLED(POWER_LOSS_RECOVERY)
         recovery.info.current_position.z = 0;
+        #endif
       }
       errorway = errornum = 0;
     }

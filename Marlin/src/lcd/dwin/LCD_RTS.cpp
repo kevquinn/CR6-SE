@@ -1409,6 +1409,7 @@ void RTSSHOW::RTS_HandleData()
           RTS_SndData(ExchangePageBase + 37, ExchangepageAddr);
           change_page_font = 37;
         }
+        #if ENABLED(POWER_LOSS_RECOVERY)
         if(recovery.info.recovery_flag) 
         {
           power_off_type_yes = 1;
@@ -1421,6 +1422,7 @@ void RTSSHOW::RTS_HandleData()
 
           recovery.resume();
         }
+        #endif
       }
       else if(recdat.data[0] == 2)
       {
@@ -1522,7 +1524,9 @@ void RTSSHOW::RTS_HandleData()
         queue.enqueue_one_now(cmd);
         queue.enqueue_now_P(PSTR("M24"));
 
+        #if ENABLED(POWER_LOSS_RECOVERY)
         card.removeJobRecoveryFile();
+        #endif
         StartPrint_flag = 1;
 
         heat_flag = 1;
@@ -1721,7 +1725,8 @@ void EachMomentUpdate()
   if(ms > next_rts_update_ms)
   {
     // print the file before the power is off.
-    if((power_off_type_yes == 0) && lcd_sd_status && recovery.info.recovery_flag)
+    #if ENABLED(POWER_LOSS_RECOVERY)
+    if ((power_off_type_yes == 0) && lcd_sd_status && recovery.info.recovery_flag)
     {
       power_off_type_yes = 1;
       for(uint16_t i = 0;i < CardRecbuf.Filesum;i ++) 
@@ -1757,7 +1762,13 @@ void EachMomentUpdate()
       }
       return;
     }
-    else if((power_off_type_yes == 0) && !recovery.info.recovery_flag)
+    else
+    #endif
+    if((power_off_type_yes == 0)
+      #if ENABLED(POWER_LOSS_RECOVERY)
+      && !recovery.info.recovery_flag
+      #endif
+      )
     {
       power_off_type_yes = 1;
       Update_Time_Value = RTS_UPDATE_VALUE;
