@@ -260,12 +260,65 @@ void BL24CXX_Read(uint16_t ReadAddr,uint8_t *pBuffer,uint16_t NumToRead)
 //NumToWrite:要写入数据的个数
 void BL24CXX_Write(uint16_t WriteAddr,uint8_t *pBuffer,uint16_t NumToWrite)
 {
-	while(NumToWrite--)
+	if(EE_TYPE!=BL24C16)
 	{
-		BL24CXX_WriteOneByte(WriteAddr,*pBuffer);
-		WriteAddr++;
-		pBuffer++;
+		// Old inefficient code - the new code is hard-wired for the BL24C16
+		// This code takes maybe 0.5s to write the 184-byte recovery data structure,
+		// causing print pauses on "vase" mode and some other pathological cases, 
+		while(NumToWrite--)
+		{
+			BL24CXX_WriteOneByte(WriteAddr,*pBuffer);
+			WriteAddr++;
+			pBuffer++;
+		}
+		delay(10);
 	}
-	delay(10);
+	else
+	{
+		// Page-write version for BL24C16
+		// Should be <40ms for the 184-byte recovery data structure
+		int do_addr=(1==1); // flag true when address for write is needed
+		while(NumToWrite--)
+		{
+			if(do_addr)
+			{
+				do_addr=(1==0);
+				IIC_Start(); // Initiate command
+				// Send Address 
+				if(EE_TYPE>BL24C16)
+				{
+					IIC_Send_Byte(0XA0);	    //发送写命令
+					IIC_Wait_Ack();
+					IIC_Send_Byte(WriteAddr>>8);//发送高地址
+ 				}
+				else
+				{
+					// 0xA<bits of address 8-10 of address><0 for write>, <bits 0-7 of address>
+					IIC_Send_Byte(0XA0+((WriteAddr/256)<<1));   //发送器件地址0XA0,写数据 
+				}	 
+				IIC_Wait_Ack();	   
+ 				IIC_Send_Byte(WriteAddr%256);   //发送低地址
+				IIC_Wait_Ack(); 	 										  		   
+			}
+			IIC_Send_Byte(*pBuffer);     //发送字节							   
+			IIC_Wait_Ack();
+			WriteAddr++;
+			pBuffer++;
+			// next address is a new page start, so start a new cycle
+			// Note - this is hard-coded for the BL24C16.
+			// For <BL2416 the mask would be 0x7 for BL24C08, 0x03 for BL24C04, 0x01 for BL24C02 - but really, is anyone going to use them?
+			if((WriteAddr & 0xf)==0)
+			{
+				IIC_Stop(); // stop current page write
+				delay(5); // write cycle time
+				do_addr=(1==1); // set for new page write next time
+			}
+		}
+		if (!do_addr)
+		{
+			IIC_Stop();
+			delay(5); // write cycle time
+		}
+	}
 }
 
