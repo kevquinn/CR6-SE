@@ -276,7 +276,7 @@ void BL24CXX_Write(uint16_t WriteAddr,uint8_t *pBuffer,uint16_t NumToWrite)
 	else
 	{
 		// Page-write version for BL24C16
-		// Should be <40ms for the 184-byte recovery data structure
+		// Should be ~60ms for the 184-byte recovery data structure
 		int do_addr=(1==1); // flag true when address for write is needed
 		while(NumToWrite--)
 		{
@@ -305,8 +305,7 @@ void BL24CXX_Write(uint16_t WriteAddr,uint8_t *pBuffer,uint16_t NumToWrite)
 			WriteAddr++;
 			pBuffer++;
 			// next address is a new page start, so start a new cycle
-			// Note - this is hard-coded for the BL24C16.
-			// For <BL2416 the mask would be 0x7 for BL24C08, 0x03 for BL24C04, 0x01 for BL24C02 - but really, is anyone going to use them?
+			// Note - the 0xf mask is hard-coded for the BL24C16.
 			if((WriteAddr & 0xf)==0)
 			{
 				IIC_Stop(); // stop current page write
