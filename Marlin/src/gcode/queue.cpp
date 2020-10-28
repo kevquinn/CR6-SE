@@ -531,7 +531,9 @@ void GCodeQueue::get_serial_commands() {
 
           card.printingHasFinished();
 
-          print_finish = 1;
+          #if ENABLED(EVENT_SD_STOP_AUTOHOME)
+            print_finish = 1; // flag to tell EachMomentUpdate that when the planner queue is emptied, that's the end of a print job
+          #endif
 
           if (IS_SD_PRINTING())
             sd_count = 0; // If a sub-file was printing, continue from call point

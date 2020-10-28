@@ -240,8 +240,10 @@ extern int Update_Time_Value;
 extern unsigned char AxisUnitMode;
 extern bool home_flag;
 extern bool heat_flag;
-extern bool print_finish;
-extern bool finish_home;
+#if ENABLED(EVENT_SD_STOP_AUTOHOME)
+  extern bool print_finish;
+  extern bool finish_home;
+#endif
 extern bool AutohomeZflag;
 extern char commandbuf[30];
 

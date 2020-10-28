@@ -367,7 +367,11 @@ void GcodeSuite::G28(const bool always_home_all) {
         (parser.seenval('R') ? parser.value_linear_units() : Z_HOMING_HEIGHT)
     );
 
-    if(finish_home == false && waitway != 7)
+    if(
+      #if ENABLED(EVENT_SD_STOP_AUTOHOME)
+        finish_home == false && 
+      #endif
+        waitway != 7)
     {
       if (z_homing_height && (doX || doY)) {
         destination.z = z_homing_height + (TEST(axis_known_position, Z_AXIS) ? 0.0f : current_position.z);
@@ -614,7 +618,9 @@ void GcodeSuite::G28(const bool always_home_all) {
       rtscheck.RTS_SndData(10*current_position[Y_AXIS], AXIS_Y_COORD_VP);
       rtscheck.RTS_SndData(10*current_position[Z_AXIS], AXIS_Z_COORD_VP);
 
-      if(finish_home) finish_home = false;
+      #if ENABLED(EVENT_SD_STOP_AUTOHOME)
+        if(finish_home) finish_home = false;
+      #endif
 
       if(StartPrint_flag) 
       {

@@ -87,8 +87,10 @@ RTSSHOW rtscheck;
 int Update_Time_Value = 0;
 unsigned long VolumeSet = 0x80;
 
-bool print_finish = false;
-bool finish_home = false;
+#if ENABLED(EVENT_GCODE_SD_STOP_AUTOHOME)
+  bool print_finish = false;
+  bool finish_home = false;
+#endif
 
 bool home_flag = false;
 bool AutohomeZflag = false;
@@ -1820,12 +1822,16 @@ void EachMomentUpdate()
         last_zoffset = probe_offset.z;
       }
 
-      if(print_finish && !planner.has_blocks_queued())
-      {
-        print_finish = false;
-        finish_home = true;
-        queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
-      }
+      #if ENABLED(EVENT_SD_STOP_AUTOHOME)
+        if(print_finish && !planner.has_blocks_queued())
+        {
+          print_finish = false;
+          finish_home = true;
+          #ifdef EVENT_GCODE_SD_STOP
+            queue.inject_P(PSTR(EVENT_GCODE_SD_STOP));
+          #endif
+        }
+      #endif
 
       // float temp_buf = thermalManager.temp_hotend[0].celsius;
       rtscheck.RTS_SndData(thermalManager.temp_hotend[0].celsius, HEAD_CURRENT_TEMP_VP);
