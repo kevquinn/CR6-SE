@@ -1,4 +1,8 @@
-﻿# Marlin 3D Printer Firmware
+﻿# Kev's working space for hacking on the Creality CR6-SE Firmware
+
+Please note all the below text and other stuff is as per the [upstream Marlin repository](https://github.com/MarlinFirmware/Marlin) - the upstream link isn't apparent from this repository as I had to create it by doing an unrelated commit from the source archive published on [Creality's download page](https://www.creality.com/download).
+
+# Marlin 3D Printer Firmware
 
 [![Build Status](https://travis-ci.org/MarlinFirmware/Marlin.svg?branch=2.0.x)](https://travis-ci.org/MarlinFirmware/Marlin)
 ![GitHub](https://img.shields.io/github/license/marlinfirmware/marlin.svg)
