@@ -276,6 +276,10 @@ void BL24CXX_Write(uint16_t WriteAddr,uint8_t *pBuffer,uint16_t NumToWrite)
 	else
 	{
 		// Page-write version for BL24C16
+		// Note - Creality 4.5.2 board has what looks the BL24C16A TSOT23-5 package
+		// It's unmarked, but since Creality defined the EE_TYPE macro to BL24C16, assuming that's
+		// what it is with 16-byte pages is reasonable - and it appears to work so far.
+		// http://www.belling.com.cn/en/media/file_object/bel_product/BL24C16A/datasheet/BL24C02A04A08A16A.pdf
 		// Should be ~60ms for the 184-byte recovery data structure
 		int do_addr=(1==1); // flag true when address for write is needed
 		while(NumToWrite--)
@@ -305,7 +309,7 @@ void BL24CXX_Write(uint16_t WriteAddr,uint8_t *pBuffer,uint16_t NumToWrite)
 			WriteAddr++;
 			pBuffer++;
 			// next address is a new page start, so start a new cycle
-			// Note - the 0xf mask is hard-coded for the BL24C16.
+			// Note - the 0xf mask is hard-coded for the BL24C16 16-byte page size.
 			if((WriteAddr & 0xf)==0)
 			{
 				IIC_Stop(); // stop current page write
